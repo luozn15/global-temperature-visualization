@@ -15,18 +15,37 @@ if __name__ == "__main__":
     csv_path = './data/GlobalLandTemperaturesByCountry.csv'
     tbc = data_proc.CSVReader(csv_path).tbc
     fig1 = draw.draw_3d_earth(tbc,tbc['year'].min())
+    fig1.layout.height=800
     fig2 = draw.draw_line(tbc,'CHN')
+    fig2.layout.height=400
+    fig3 = draw.draw_loc_scatters(tbc['year'].max())
+    fig3.layout.height=400
 
     #external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
     app = dash.Dash()
     app.layout = html.Div([
-        html.H1('全球地表气温可视化'),
+        html.H1('全球地表气温可视化',
+                style={'textAlign': 'center'}
+        ),
+        html.Div(children='大数据可视化大作业 by 熊鑫昌 许家声 罗子牛',
+                style={'textAlign': 'center'}
+        ),
+
         html.Div([
-            dcc.Graph(id='3d_earth',figure=fig1)
-        ], style={'width': '98%','padding': '0 20'}),
+            dcc.Graph(id='3d_earth',figure=fig1)],
+                style={'width': '64%','height':'100%','display': 'inline-block'}
+        ),
+
         html.Div([
-            dcc.Graph(id='line',figure=fig2)
-        ], style={'width': '98%','display': 'inline-block', 'padding': '0 20'}),
+        html.Div([
+            dcc.Graph(id='line',figure=fig2)], 
+                style={'width': '100%','height':'49%'}
+        ),
+        
+        html.Div([
+            dcc.Graph(id='local_scatter',figure=fig3)],
+                style={'width': '100%','height':'49%'}
+        ),],style={'width': '34%','height':'100%','display': 'inline-block'})
     ])
 
     '''@app.callback(
@@ -56,6 +75,7 @@ if __name__ == "__main__":
     )
     def update_line(clickData):
         if clickData:
+            print(clickData)
             alpha_3 = clickData['points'][0]['location']
             fig2 = draw.draw_line(tbc,alpha_3)
             return fig2

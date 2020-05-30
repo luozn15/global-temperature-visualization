@@ -5,30 +5,24 @@ import json
 import pycountry
 import plotly.express as px
 import plotly
+import data_proc
 
-def draw_3dscatters():
+def draw_loc_scatters(year):
     #path = os.path.abspath('./data')
     #equalarea = 'Raw_TAVG_EqualArea.nc'
-    file_path = './data/Raw_TAVG_EqualArea.nc'#os.path.join(path,equalarea)
+    #nc_path = './data/Raw_TAVG_EqualArea.nc'
+    nc_path = './data/Raw_TAVG_LatLong1.nc'
 
-    df = data_proc.DataProc(file_path).get_df()
-    df = df.groupby(by=['pt','year']).mean()
+    df = data_proc.NCProc2(nc_path).get_year(int(year))
 
-    df['latitude'] = [p[0][0] for p in df.index]
-    df['longitude'] = [p[0][1] for p in df.index]
-    df['year'] = [p[1] for p in df.index]
-    df = df.reset_index(drop=True)
-
-    #df = px.data.gapminder()
-    fig = px.scatter_geo(df, lat = 'latitude', lon = 'longitude', color="temperature",
-                projection="orthographic",animation_frame ='year')
+    fig = px.scatter_geo(df, lat = 'latitude', lon = 'longitude', color="temperature")
+    #fig = px.scatter_mapbox(df, lat='latitude', lon='latitude', color="temperature",zoom=10)
+    fig.layout.height=400
     return fig
 
 def draw_3d_earth(temperaturebycountry,year):  
     json_path = './data/countries.geo.json'
-
-    with open(json_path) as j:
-        countries = json.load(j)
+    countries = data_proc.JsonReader(json_path).countries
 
     temp=temperaturebycountry[temperaturebycountry['year']==year]
     fig = px.choropleth(temp, geojson=countries, locations='alpha_3', color='AverageTemperature',
@@ -43,9 +37,11 @@ def draw_line(df,alpha_3):#点击三维地球上的某个位置，出现展示�
     return fig
 
 if __name__ == "__main__":
-    import data_proc
+    
     csv_path = './data/GlobalLandTemperaturesByCountry.csv'
     tbc = data_proc.CSVReader(csv_path).tbc
     fig= draw_3d_earth(tbc,1890)
+    #fig = draw_loc_scatters('1890')
+    print(fig)
     fig.show()
  

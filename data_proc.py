@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd 
 import os
 import pycountry
-
+import json
 
 class NCProc:
     def __init__(self, file_path):                    
         file_obj = nc.Dataset(file_path)
-
+        self.obj = file_obj
         self.longitude = file_obj.variables['longitude']
         self.latitude = file_obj.variables['latitude']
         self.time = file_obj.variables['time']
@@ -46,6 +46,26 @@ class NCProc:
 
         return df
 
+class NCProc2:
+    def __init__(self, file_path):                    
+        file_obj = nc.Dataset(file_path)
+        self.nc = file_obj
+        self.longitude = file_obj.variables['longitude']
+        self.latitude = file_obj.variables['latitude']
+        self.time = file_obj.variables['time']
+        self.land_mask = file_obj.variables['land_mask']
+        self.temperature = file_obj.variables['temperature']
+        self.climatology = file_obj.variables['climatology']
+    def get_year(self,year):
+        lat = np.array(self.latitude)
+        long = np.array(self.longitude)
+        index = np.array(self.time)//1 == year
+        tp = np.nanmean(np.array(self.temperature)[index],axis=0)
+        df = pd.DataFrame(tp.reshape(len(lat)*len(long)),columns=['temperature'])
+        df['latitude'] = lat.repeat(len(long))
+        df['longitude'] = np.tile(long,len(lat))
+        return df
+
 class CSVReader:
     def __init__(self,file_path):
         self.tbc = self.proc_csv(file_path)
@@ -77,6 +97,21 @@ class CSVReader:
         temperaturebycountry = temperaturebycountry[temperaturebycountry['alpha_3'].notna()]
         return temperaturebycountry
 
+class JsonReader:
+    def __init__(self,json_path):
+        with open(json_path) as j:
+            self.countries = json.load(j)
+    def get_center(self):
+        center = {}
+        for country in self.countries['features']:
+            if country['geometry']['type'] =='Polygon':
+                center[country['id']] = np.array(country['geometry']['coordinates'][0]).mean(axis=0)
+            elif country['geometry']['type'] =='MultiPolygon':
+                center[country['id']] = np.array([np.array(p[0]).mean(axis=0) for p in country['geometry']['coordinates']]).mean(axis=0)
+        return center
+
 if __name__ == "__main__":
-    csv_path = './data/GlobalLandTemperaturesByCountry.csv'
-    print(CSVReader(csv_path).tbc)
+    #csv_path = './data/GlobalLandTemperaturesByCountry.csv'
+    #print(CSVReader(csv_path).tbc)
+    nc_path = './data/Raw_TAVG_LatLong1.nc'
+    print(NCProc2(nc_path).get_year(1890))
