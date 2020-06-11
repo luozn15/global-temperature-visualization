@@ -6,7 +6,7 @@ import os
 import pycountry
 import json
 
-class NCProc:
+class NCProc_EqualArea:
     def __init__(self, file_path):                    
         file_obj = nc.Dataset(file_path)
         self.obj = file_obj
@@ -36,17 +36,17 @@ class NCProc:
         t = t.rename(columns={0:'time'})
 
         df = tp.merge(t,how='left',on='time_id').merge(lat,how='left',on='pt_id').merge(lon,how='left',on='pt_id')
-        df['pt'] = [(lat,lon) for lat,lon in zip(df['latitude'],df['longitude'])]
-        df['year']=df['time']//1
+        #df['pt'] = [(lat,lon) for lat,lon in zip(df['latitude'],df['longitude'])]
+        df['year']=(df['time']//1).astype(int)
         del df['pt_id']
         del df['time_id']
-        del df['latitude']
-        del df['longitude']
+        #del df['latitude']
+        #del df['longitude']
         del df['time']
-
+        df = df.groupby(['latitude','longitude','year']).mean().reset_index()
         return df
 
-class NCProc2:
+class NCProc_LatLong1:
     def __init__(self, file_path):                    
         file_obj = nc.Dataset(file_path)
         self.nc = file_obj
@@ -95,13 +95,17 @@ class CSVReader:
                     pass
         temperaturebycountry['alpha_3'] = temperaturebycountry['country'].map(alpha_3)
         temperaturebycountry = temperaturebycountry[temperaturebycountry['alpha_3'].notna()]
+        tw = temperaturebycountry.query("alpha_3=='CHN'")
+        tw['alpha_3']='TWN'
+        temperaturebycountry=temperaturebycountry.append(tw).reset_index(drop=True)
         return temperaturebycountry
 
 class JsonReader:
     def __init__(self,json_path):
         with open(json_path) as j:
             self.countries = json.load(j)
-    def get_center(self):
+            self.centers = self.get_centers()
+    def get_centers(self):
         center = {}
         for country in self.countries['features']:
             if country['geometry']['type'] =='Polygon':
@@ -109,9 +113,11 @@ class JsonReader:
             elif country['geometry']['type'] =='MultiPolygon':
                 center[country['id']] = np.array([np.array(p[0]).mean(axis=0) for p in country['geometry']['coordinates']]).mean(axis=0)
         return center
+    def get_center_alpha3(self,alpha_3):
+        return self.centers[alpha_3]
 
 if __name__ == "__main__":
-    #csv_path = './data/GlobalLandTemperaturesByCountry.csv'
-    #print(CSVReader(csv_path).tbc)
-    nc_path = './data/Raw_TAVG_LatLong1.nc'
-    print(NCProc2(nc_path).get_year(1890))
+    csv_path = './data/GlobalLandTemperaturesByCountry.csv'
+    print(CSVReader(csv_path).tbc)
+    #nc_path = './data/Raw_TAVG_LatLong1.nc'
+    #print(NCProc2(nc_path).get_year(1890))
