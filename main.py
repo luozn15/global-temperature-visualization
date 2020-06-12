@@ -19,7 +19,7 @@ if __name__ == "__main__":
     df_EqualArea = data_proc.NCProc_EqualArea(nc_path).get_df()
 
     fig1_origin, geo_json = draw.draw_3d_earth(tbc,tbc['year'].max())
-    fig1_origin.layout.height=700
+    fig1_origin.layout.height=675
     fig2_origin = draw.draw_loc_scatters_EqualArea(df_EqualArea,tbc['year'].max(),110,40)
     fig2_origin.layout.height= 300
     fig3_origin = draw.draw_line(tbc,'CHN')
@@ -35,13 +35,19 @@ if __name__ == "__main__":
     app = dash.Dash(__name__)#, external_stylesheets=external_stylesheets)
     app.layout = html.Div([
         html.Div([
-            html.H1(
-                children='全球地表气温可视化',
-                style={'textAlign': 'center',"marginBottom": "0px"}),
-            html.H3(
-                children='数据可视化大作业 by 熊鑫昌 许家声 罗子牛',
-                style={'textAlign': 'center',"marginTop": "0px"}),],
-            style={'marginBottom':'25px'}),
+            html.Img(
+                src='https://www.tsinghua.edu.cn/images/logo.png',
+                style={'display':'block','height':'10%','paddingTop':'30px'}
+            ),
+            html.Div([
+                html.H1(
+                    children='全球地表气温可视化',
+                    style={'textAlign': 'center',"marginBottom": "0px"}),
+                html.H3(
+                    children='数据可视化大作业 by 熊鑫昌 许家声 罗子牛',
+                    style={'textAlign': 'center',"marginTop": "0px"})],
+                style={'marginLeft':'30%'}),],
+            style={'marginBottom':'25px','display':'flex','flexDirection':'row'}),
         html.Div([
             html.Div([
                 html.Div([
@@ -49,7 +55,7 @@ if __name__ == "__main__":
                         children='全球气温年份：'+str(tbc['year'].max())+'年',
                         id = 'year_label',
                         style={'display':'block','textAlign': 'center',
-                            'marginTop':'15px','width':'30%'}),
+                            'margin':'10px','width':'25%'}),
                     html.Div([
                         dcc.Slider(id='year_slider',
                             min=tbc['year'].min(),
@@ -112,7 +118,15 @@ if __name__ == "__main__":
                         'backgroundColor': '#ffffff',"margin":"10px",
                         "padding":"10px","boxShadow":"2px 2px 2px lightgrey",}),
                 html.Div(
-                    children='summary', 
+                    dcc.Markdown('''
+                        ### 结论
+                        * 1750年以来全球气温普遍波动上升。
+                        * 气温上升速度也在加快，呈指数增长趋势。
+                        * 1930年以来，全球各纬度气温增长分布不均衡：
+                            * 北半球升温明显高于南半球，或与人类分布关系有关。
+                            * 尤其北极地区升温为全球之最，反映为海冰加速融化。
+                        
+                     '''), 
                     style={'display':'block',"borderRadius": "15px",
                         'backgroundColor': '#ffffff',"margin":"10px",
                         "padding":"30px","boxShadow":"2px 2px 2px lightgrey",
