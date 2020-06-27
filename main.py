@@ -41,12 +41,12 @@ if __name__ == "__main__":
             ),
             html.Div([
                 html.H1(
-                    children='全球地表气温可视化',
+                    children='全球地表气温可视化 · 各国气温变化',
                     style={'textAlign': 'center',"marginBottom": "0px"}),
                 html.H3(
                     children='数据可视化大作业 by 熊鑫昌 许家声 罗子牛',
                     style={'textAlign': 'center',"marginTop": "0px"})],
-                style={'marginLeft':'30%'}),],
+                style={'marginLeft':'25%'}),],
             style={'marginBottom':'25px','display':'flex','flexDirection':'row'}),
         html.Div([
             html.Div([
@@ -123,8 +123,8 @@ if __name__ == "__main__":
                         * 1750年以来全球气温普遍波动上升。
                         * 气温上升速度也在加快，呈指数增长趋势。
                         * 1930年以来，全球各纬度气温增长分布不均衡：
-                            * 北半球升温明显高于南半球，或与人类分布关系有关。
                             * 尤其北极地区升温为全球之最，反映为海冰加速融化。
+                            * 北半球升温明显高于南半球，或与人类分布关系有关。
                         
                      '''), 
                     style={'display':'block',"borderRadius": "15px",

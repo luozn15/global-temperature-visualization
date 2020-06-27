@@ -17,10 +17,10 @@ def draw_3d_earth(temperaturebycountry,year):
                            featureidkey="id",projection="orthographic",
                            hover_name="country"
                           )
-    fig.layout.title='全球气温变化相对值'
+    fig.layout.title='各国当年平均气温'
     fig.layout.coloraxis.colorbar.thickness=10
     #fig.layout.coloraxis.colorbar.orientation = 'h'
-    fig.layout.coloraxis.colorbar.title.text = '全球气温变化相对值 (摄氏度)'
+    fig.layout.coloraxis.colorbar.title.text = '各国当年平均气温 (摄氏度)'
     fig.layout.coloraxis.colorbar.title.side = 'right'
     return fig, geo_json
 
